@@ -1,0 +1,32 @@
+---
+title: "final_p"
+output: html_document
+date: "2024-11-11"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r Uploading CSV}
+getwd()
+crimedata <- read.csv('/Users/crazygay/Desktop/Classes/Stat 451/project01/crimedata.csv')
+unemployment <- read.csv('/Users/crazygay/Desktop/Classes/Stat 451/project01/crimebystatecombinedwithunemployment.csv')
+population <- read.csv('/Users/crazygay/Desktop/Classes/Stat 451/project01/crime_data_w_population_and_crime_rate.csv')
+headth <- read.csv('/Users/crazygay/Desktop/Classes/Stat 451/project01/health_indicators_usa.csv')
+```
+
+```{r Removing NULLs}
+crimedata <- na.omit(crimedata)
+unemployment <- na.omit(unemployment)
+population <- na.omit(population)
+headth <- na.omit(headth)
+```
+
+```{r Summary}
+summary(crimedata)
+summary(unemployment)
+summary(population)
+summary(headth)
+```
+
