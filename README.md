@@ -26,4 +26,6 @@ Represents the bar graph of assault rates by states in descending order. Assault
 This gives us a spatial understanding of where, specifically in which states, the most assaults not amounting to murder are occuring. Assaults are far more common than both rape and murder.
 Also, North Carolina surprisingly leads the assault bar graph, despite not featuring in the top 3 for either rape or murder.
 
+## Medicare Breakdown by Race for Each State Histogram 
+Represents the histogram of people who are enrolled in Medicare by state, distinguishing the proportions of each state by race (white, black, hispanic, and other). The histograms are located by total enrollments in descending order. This plot helps highlight how many people (with their demographics) are enrolled in a federal health insurance plan, which can give insights into health equity, as well as economic status due to the need for people at a lower economic status to pursue government sponsored programs. In this you can see that states with higher populations (CA, FL, TX, NY) have the most enrollements, which makes sense, but it also helps us understand which people in states are enrolling in these programs. We hope to try map this to crime rate in order to test the association that people needing federal health insurance (lower class) see higher incidents of crime. 
 
