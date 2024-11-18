@@ -137,6 +137,7 @@ generate_heatmap <- function(data, crime_metric, title) {
 
 # UI
 ui <- page_navbar(
+  # Scatterplot
   nav_panel("Crime and Unemployment Analysis",
             sidebarLayout(
               sidebarPanel(
@@ -186,7 +187,11 @@ ui <- page_navbar(
             )
   ),
 
-  nav_panel("Yet another visualization"),
+  nav_panel("Mean Violent crimes map",
+           mainPanel(
+             plotOutput(outputId = "mean_violent_crime_map", height = "600px")
+           )
+  ),
   nav_panel("Still more visualization!"),
   
   title = "Visualization of Crime Data in the U.S.",
@@ -238,6 +243,27 @@ server <- function(input, output) {
       labs(title = paste(crime_type, "Rates by State"), x = "State", y = paste(crime_type, "Rate")) +
       theme(axis.text.x = element_text(angle = 90, hjust = 1))
   })
+
+  output$mean_violent_crime_map <- renderPlot({
+    plot_usmap(data = state_means, values = "violent.total", labels = FALSE) + 
+  scale_fill_gradient2(
+    low = "purple", 
+    high = "gold", 
+    mid = "white", 
+    midpoint = median(state_means$violent.total), 
+    limits = c(0, max(state_means$violent.total)), 
+    breaks = seq(0, max(state_means$violent.total), by = 200), 
+    name = "Violent crimes", 
+    labels = scales::comma
+  ) +
+  theme(
+    legend.position = "right", 
+    legend.key.size = unit(1.75, "cm"), 
+    legend.text = element_text(size = 11, face = 'bold'), 
+    legend.title = element_text(size = 12, face = 'bold')
+  )
+  })
+  
 }
 
 shinyApp(ui, server)
