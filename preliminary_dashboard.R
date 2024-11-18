@@ -185,7 +185,7 @@ ui <- page_navbar(
                 plotOutput(outputId = "crime_rate_bar_plot", height = "600px")
               )
             )
-  ),,
+  ),
   nav_panel("Yet another visualization"),
   nav_panel("Still more visualization!"),
   
