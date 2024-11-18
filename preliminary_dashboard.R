@@ -169,7 +169,8 @@ ui <- page_navbar(
               )
             )
   ),
-  
+
+  #BAR PLOTS
   nav_panel("Crime Rate by Type and Medicare Enrollment by Race",
             sidebarLayout(
               sidebarPanel(
