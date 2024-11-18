@@ -152,6 +152,22 @@ ui <- page_navbar(
               )
             )
   ),
+  #BAR PLOTS
+  nav_panel("Crime Rates by State",
+            sidebarLayout(
+              sidebarPanel(
+                selectInput(
+                  inputId = "crime_type_bar",
+                  label = "Select a Crime Rate:",
+                  choices = c("Murder", "Assault", "Rape"),
+                  selected = "Murder"
+                )
+              ),
+              mainPanel(
+                plotOutput(outputId = "crime_rate_bar_plot", height = "600px")
+              )
+            )
+  ),
   
   # Medicare Implementation
   nav_panel("Crime Rate by Type and Medicare Enrollement by Race",
@@ -170,22 +186,6 @@ ui <- page_navbar(
             )
   ),
 
-  #BAR PLOTS
-  nav_panel("Crime Rates by State",
-            sidebarLayout(
-              sidebarPanel(
-                selectInput(
-                  inputId = "crime_type_bar",
-                  label = "Select a Crime Rate:",
-                  choices = c("Murder", "Assault", "Rape"),
-                  selected = "Murder"
-                )
-              ),
-              mainPanel(
-                plotOutput(outputId = "crime_rate_bar_plot", height = "600px")
-              )
-            )
-  ),
   nav_panel("Yet another visualization"),
   nav_panel("Still more visualization!"),
   
@@ -233,7 +233,7 @@ server <- function(input, output) {
                          "Assault" = "darkorange",
                          "Rape" = "purple")
     
-    ggplot(crime_data, aes(x = reorder(State, -get(crime_col)), y = get(crime_col))) +
+    ggplot(crime_data, aes(x = reorder(X, -get(crime_col)), y = get(crime_col))) +
       geom_bar(stat = "identity", fill = fill_color) +
       labs(title = paste(crime_type, "Rates by State"), x = "State", y = paste(crime_type, "Rate")) +
       theme(axis.text.x = element_text(angle = 90, hjust = 1))
