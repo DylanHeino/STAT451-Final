@@ -245,7 +245,7 @@ server <- function(input, output) {
   })
 
   output$mean_violent_crime_map <- renderPlot({
-    plot_usmap(data = state_means, values = "violent.total", labels = FALSE) + 
+    plot_usmap(data = state_means, values = "violent.total", labels = TRUE) + 
   scale_fill_gradient2(
     low = "purple", 
     high = "gold", 
