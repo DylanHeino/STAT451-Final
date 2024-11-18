@@ -6,27 +6,70 @@ date: "2024-11-11"
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+library(sf)
+library(maps)
+library(mapdata)
 ```
 
 ```{r Uploading CSV}
 getwd()
-crimedata <- read.csv('/Users/crazygay/Desktop/Classes/Stat 451/project01/crimedata.csv')
-unemployment <- read.csv('/Users/crazygay/Desktop/Classes/Stat 451/project01/crimebystatecombinedwithunemployment.csv')
-population <- read.csv('/Users/crazygay/Desktop/Classes/Stat 451/project01/crime_data_w_population_and_crime_rate.csv')
-headth <- read.csv('/Users/crazygay/Desktop/Classes/Stat 451/project01/health_indicators_usa.csv')
+crime_data <- read.csv('/Users/crazygay/Desktop/Classes/Stat 451/project01/crime_data_w_population_and_crime_rate.csv')
 ```
 
-```{r Removing NULLs}
-crimedata <- na.omit(crimedata)
-unemployment <- na.omit(unemployment)
-population <- na.omit(population)
-headth <- na.omit(headth)
+
+```{r first attempt}
+us_counties <- st_as_sf(maps::map("county", plot = FALSE, fill = TRUE))
+
+crime_data$FIPS <- sprintf("%02d%03d", crime_data$FIPS_ST, crime_data$FIPS_CTY)
+crime_data$FIPS <- as.character(crime_data$FIPS)
+
+
+crime_rate_100000 <- crime_data %>% select(crime_rate_per_100000)
+crime_rate_100000$FIPS <- sprintf("%02d%03d", crime_data$FIPS_ST, crime_data$FIPS_CTY)
+
+
+us_counties$FIPS <- sprintf("%02d%03d", crime_data$FIPS_ST, crime_data$FIPS_CTY)
+
+
+crime_rate_100000$FIPS <- as.character(crime_data$FIPS)
+
+map_data <- us_counties %>% inner_join(crime_data, by = "FIPS")
+
+
+print(summary(map_data$crime_rate_per_100000))
+print(sum(is.na(map_data$crime_rate_per_100000)))  # Check how many counties have NA values
+
+ggplot(map_data) +
+  geom_sf(aes(fill = crime_rate_per_100000), color = NA) +
+  scale_fill_gradient(low = "lightyellow", high = "darkred", name = "Crime Rate", na.value = "grey80") +
+  theme_minimal() +
+  labs(title = "Crime Rate per 100,000 in U.S. Counties")
+
+
 ```
 
-```{r Summary}
-summary(crimedata)
-summary(unemployment)
-summary(population)
-summary(headth)
+
+```{r}
+us_counties <- st_as_sf(maps::map("county", plot = FALSE, fill = TRUE))
+
+crime_data$FIPS <- sprintf("%02d%03d", crime_data$FIPS_ST, crime_data$FIPS_CTY)
+crime_data$FIPS <- as.character(crime_data$FIPS)
+
+us_counties$FIPS <- sprintf("%05d", as.numeric(crime_data$FIPS_ST))  # Convert to 5-character strings
+
+map_data <- merge(us_counties, crime_data, by = "FIPS", all.x = TRUE)
+
+print(summary(map_data$crime_rate_per_100000))
+print(sum(is.na(map_data$crime_rate_per_100000)))  # Check how many counties have NA values
+
+ggplot(map_data) +
+  geom_sf(aes(fill = crime_rate_per_100000), color = NA) +
+  scale_fill_gradient(low = "lightyellow", high = "darkred", name = "Crime Rate", na.value = "grey80") +
+  theme_linedraw() +
+  labs(title = "Crime Rate per 100,000 in U.S. Counties")
+
+
 ```
 
