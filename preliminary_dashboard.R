@@ -4,6 +4,7 @@ library(ggplot2)
 library(dplyr)
 library(tidyr)
 library(cowplot)
+library(usmap)
 
 unemployment_crime_data <- read.csv("C:\\Users\\Dylan H\\Documents\\STAT 451\\Final\\crimebystatecombinedwithunemployment.csv")
 
