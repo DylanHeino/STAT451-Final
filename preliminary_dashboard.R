@@ -171,21 +171,21 @@ ui <- page_navbar(
   ),
 
   #BAR PLOTS
-  nav_panel("Crime Rate by Type and Medicare Enrollment by Race",
+  nav_panel("Crime Rates by State",
             sidebarLayout(
               sidebarPanel(
                 selectInput(
-                  inputId = "crime_type",
+                  inputId = "crime_type_bar",
                   label = "Select a Crime Rate:",
-                  choices = c("Murder Rate", "Assault Rate", "Rape Rate"),
-                  selected = "Murder Rate"
+                  choices = c("Murder", "Assault", "Rape"),
+                  selected = "Murder"
                 )
               ),
               mainPanel(
-                plotOutput(outputId = "crime_rate_plot", height = "800px")
+                plotOutput(outputId = "crime_rate_bar_plot", height = "600px")
               )
             )
-  ),
+  ),,
   nav_panel("Yet another visualization"),
   nav_panel("Still more visualization!"),
   
