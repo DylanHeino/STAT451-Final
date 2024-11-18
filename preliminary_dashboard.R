@@ -170,7 +170,21 @@ ui <- page_navbar(
             )
   ),
   
-  nav_panel("Another visual"),
+  nav_panel("Crime Rate by Type and Medicare Enrollment by Race",
+            sidebarLayout(
+              sidebarPanel(
+                selectInput(
+                  inputId = "crime_type",
+                  label = "Select a Crime Rate:",
+                  choices = c("Murder Rate", "Assault Rate", "Rape Rate"),
+                  selected = "Murder Rate"
+                )
+              ),
+              mainPanel(
+                plotOutput(outputId = "crime_rate_plot", height = "800px")
+              )
+            )
+  ),
   nav_panel("Yet another visualization"),
   nav_panel("Still more visualization!"),
   
@@ -204,6 +218,24 @@ server <- function(input, output) {
     
   
     generate_heatmap(combined_data, crime_metric, paste(crime_metric, "Rate and Medicare Enrollment by Race Percentages"))
+  })
+
+  #BAR PLOTS FOR SELECTED CRIME TYPES
+  output$crime_rate_bar_plot <- renderPlot({
+    crime_type <- input$crime_type_bar
+    crime_col <- switch(crime_type,
+                        "Murder" = "Murder",
+                        "Assault" = "Assault",
+                        "Rape" = "Rape")
+    fill_color <- switch(crime_type,
+                         "Murder" = "steelblue",
+                         "Assault" = "darkorange",
+                         "Rape" = "purple")
+    
+    ggplot(crime_data, aes(x = reorder(State, -get(crime_col)), y = get(crime_col))) +
+      geom_bar(stat = "identity", fill = fill_color) +
+      labs(title = paste(crime_type, "Rates by State"), x = "State", y = paste(crime_type, "Rate")) +
+      theme(axis.text.x = element_text(angle = 90, hjust = 1))
   })
 }
 
