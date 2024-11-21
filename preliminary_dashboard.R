@@ -15,7 +15,10 @@ unemployment_crime_data <- read.csv("C:\\Users\\Dylan H\\Documents\\STAT 451\\Fi
 
 crime_data = read.csv("C:\\Users\\Dylan H\\Documents\\STAT 451\\Final\\US_violent_crime.csv")
 crime_data$X <- state.abb[match(crime_data$X, state.name)]
-data = read.csv("C:\\Users\\Dylan H\\Documents\\STAT 451\\Final\\Medicare Demographics.csv")
+data = read.csv("C:\\Users\\Dylan H\\Documents\\STAT 451\\Final\\2014-2022 Medicare FFS Geographic Variation Public Use File.csv")
+data = data[,c(1:3, 5:6, 12:17)]
+colnames(data)[c(2,3,4,5,6,7,8,9,10,11)] = c("Level","Level.County","Age","Total","Female.PCT","Male.PCT","White.PCT",
+                                             "Black.PCT","Hisp.PCT","Other.PCT")
 data_filtered <- data[grepl("^[A-Za-z]{2}$", data$Level.County), ]
 data_filtered <- data_filtered[data_filtered$Age == "All",] 
 data_filtered <- data_filtered[!data_filtered$Level.County %in% c("ZZ", "PR", "VI", "DC"), ]
