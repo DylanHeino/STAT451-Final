@@ -70,15 +70,15 @@ generate_heatmap <- function(data, crime_metric, title) {
     filter(DataType == "Race") %>%
     mutate(Metric = factor(Metric, levels = race_order))
   
-  # Plot for crime data
+  # Crime plot
   crime_plot <- ggplot(crime_data, aes(
     x = Metric, 
     y = factor(Level.County, levels = crime_order), 
     fill = Value
   )) +
-    geom_tile() +
+    geom_tile(color = "white", size = 0.5) + # Add white borders to tiles
     scale_fill_gradient(
-      low = "white", high = "red", 
+      low = "yellow", high = "red", 
       name = "Crime Rate"
     ) +
     labs(
@@ -88,31 +88,35 @@ generate_heatmap <- function(data, crime_metric, title) {
       subtitle = "Rate = per 100,000 people \nPercent = of those enrolled in Medicare"
     ) +
     theme_minimal() +
-    theme(axis.text.x = element_text(size = 15, angle = 45, hjust = 1),
-          axis.text.y = element_text(size = 15),
-          title = element_text(size = 24),
-          plot.subtitle = element_text(size = 16), 
-          legend.title = element_text(size = 14), 
-          legend.text = element_text(size = 12))     
+    theme(
+      axis.text.x = element_text(size = 15, angle = 45, hjust = 1),
+      axis.text.y = element_text(size = 15),
+      title = element_text(size = 24),
+      plot.subtitle = element_text(size = 16), 
+      legend.title = element_text(size = 14), 
+      legend.text = element_text(size = 12)
+    )
   
-  # Plot for race data
+  # Race plot
   race_plot <- ggplot(race_data, aes(
     x = Metric, 
     y = factor(Level.County, levels = crime_order), 
     fill = Value
   )) +
-    geom_tile() +
+    geom_tile(color = "white", size = 0.5) + # Add white borders to tiles
     scale_fill_gradient(
-      low = "white", high = "blue", 
+      low = "lightblue", high = "blue", 
       name = "Race Percentage"
     ) +
     labs(x = NULL, y = NULL) +
     theme_minimal() +
-    theme(axis.text.x = element_text(size = 15, angle = 45, hjust = 1),
-          axis.title.y = element_blank(),
-          axis.text.y = element_blank(),
-          legend.title = element_text(size = 14),
-          legend.text = element_text(size = 12))
+    theme(
+      axis.text.x = element_text(size = 15, angle = 45, hjust = 1),
+      axis.title.y = element_blank(),
+      axis.text.y = element_blank(),
+      legend.title = element_text(size = 14),
+      legend.text = element_text(size = 12)
+    )
   
   
   crime_legend <- cowplot::get_legend(crime_plot)
@@ -176,6 +180,7 @@ ui <- page_navbar(
   
   # Medicare Implementation
   nav_panel("Crime Type and Medicare",
+            
             sidebarLayout(
               sidebarPanel(
                 selectInput(
