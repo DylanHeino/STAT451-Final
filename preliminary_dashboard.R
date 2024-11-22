@@ -85,13 +85,13 @@ generate_heatmap <- function(data, crime_metric, title) {
       x = NULL, 
       y = "State", 
       title = title, 
-      subtitle = "Rate = per 100,000 people"
+      subtitle = "Rate = per 100,000 people \nPercent = of those enrolled in Medicare"
     ) +
     theme_minimal() +
     theme(axis.text.x = element_text(size = 15, angle = 45, hjust = 1),
           axis.text.y = element_text(size = 15),
           title = element_text(size = 24),
-          subtitle = element_text(size = 16), 
+          plot.subtitle = element_text(size = 16), 
           legend.title = element_text(size = 14), 
           legend.text = element_text(size = 12))     
   
@@ -175,7 +175,7 @@ ui <- page_navbar(
   ),
   
   # Medicare Implementation
-  nav_panel("Crime Rate by Type and Medicare Enrollement by Race",
+  nav_panel("Crime Type and Medicare",
             sidebarLayout(
               sidebarPanel(
                 selectInput(
