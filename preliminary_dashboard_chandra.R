@@ -19,7 +19,7 @@ ggplot(crime_data, aes(x = population_group, y = crime_rate, fill = population_g
   geom_violin(trim = FALSE, alpha = 0.7) +
   scale_fill_brewer(palette = "YlOrRd") + 
   labs(
-    title = "Crime Rate by Population Size in all US Cities",
+    title = "Crime Rate by Population Size in all US Counties",
     x = "Population Size Group",
     y = "Crime Rate per 100,000 People"
   ) +
@@ -35,7 +35,7 @@ ggplot(crime_data, aes(x = population, y = crime_rate)) +
   geom_point(alpha = 0.3, color = "blue") +           
   scale_x_log10(labels = scales::comma) +        
   labs(
-    title = "Population vs. Crime Rate in all US Cities",
+    title = "Population vs. Crime Rate in all US Counties",
     x = "Population (Log Scale)",
     y = "Crime Rate per 100,000 People"
   ) +
