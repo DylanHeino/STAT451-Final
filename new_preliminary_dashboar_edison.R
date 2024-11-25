@@ -263,7 +263,7 @@ server <- function(input, output) {
                include = region_input,
                data = crime_pop_data,
                values = "crime_rate_per_100000",
-               color = "purple") +
+               color = "black") +
       scale_fill_continuous(low = "gold",
                             high = "purple",
                             name = "Crime rate per 100,000 people") +
