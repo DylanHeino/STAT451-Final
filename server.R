@@ -1,10 +1,9 @@
-library(bslib)
-library(ggplot2)
-library(dplyr)
-library(tidyr)
-
 server <- function(input, output) {
   
+  
+  ################################################################################
+  # Unemployment plot and US map
+  ################################################################################
   ### Filter the state_means data frame ### 
   filtered_data <- reactive({
     
@@ -70,6 +69,27 @@ server <- function(input, output) {
     
   })
   
+  output$mean_violent_crime_map <- renderPlot({
+    plot_usmap(data = state_means, values = "violent.total", labels = TRUE) + 
+      scale_fill_gradient2(
+        low = "white", 
+        high = "red", 
+        mid = "white", 
+        midpoint = median(state_means$violent.total), 
+        limits = c(0, max(state_means$violent.total)), 
+        breaks = seq(0, max(state_means$violent.total), by = 200), 
+        name = "Violent crimes", 
+        labels = scales::comma
+      ) +
+      labs(title = "Mean Violent Crimes by State") +
+      theme(
+        plot.title = element_text(size = 20, face = "bold"),
+        legend.position = "right", 
+        legend.key.size = unit(1.75, "cm"), 
+        legend.text = element_text(size = 11, face = 'bold'), 
+        legend.title = element_text(size = 12, face = 'bold')
+      )
+  })
   ### Plotting the unemployment rate vs. mean violent crime count scatterplot ###
   output$crime_unemployment_plot <- renderPlot({
     
@@ -157,5 +177,190 @@ server <- function(input, output) {
       "Hover over the map to begin exploring"
     }
   })
+  ################################################################################
+  # Render Medicare Visualization Based on Selection
+  ################################################################################
+  output$crime_rate_value <- renderText({
+    crime_metric <- switch(input$crime_type,
+                           "Murder Rate" = "Murder",
+                           "Assault Rate" = "Assault",
+                           "Rape Rate" = "Rape")
+    
+    # Filter data based on state abbreviation input
+    filtered_data_medicare <- combined_data
+    if (input$state_search != "") {
+      filtered_data_medicare <- combined_data %>%
+        filter(Level.County == input$state_search)
+    }
+    
+    if (input$state_search != "" && nrow(filtered_data_medicare) > 0) {
+      # Fetch the crime value for the selected state and metric
+      crime_value <- filtered_data_medicare[[crime_metric]]
+      
+      # Ensure crime_value is numeric and valid
+      crime_value <- as.numeric(crime_value)
+      
+      # Generate the text output
+      trimws(paste("Race Percentages of Medicare Enrollment for", input$state_search))
+    } else {
+      # Return an empty string if no valid state or data is found
+      ""
+    }
+  })
   
+  # Render bar plot for race percentages when a state is selected
+  output$race_percentage_bar_plot <- renderPlot({
+    crime_metric <- switch(input$crime_type,
+                           "Murder Rate" = "Murder",
+                           "Assault Rate" = "Assault",
+                           "Rape Rate" = "Rape")
+    
+    # Filter data based on state abbreviation input
+    filtered_data_medicare <- combined_data
+    if (input$state_search != "") {
+      filtered_data_medicare <- combined_data %>%
+        filter(Level.County == input$state_search)
+    }
+    
+    if (input$state_search != "" && nrow(filtered_data_medicare) > 0) {
+      # Create a data frame for race percentages
+      race_data <- filtered_data_medicare %>%
+        select(White, Black, Hispanic, Other) %>%
+        gather(key = "Race", value = "Percentage")
+      
+      # Ensure Percentage is numeric
+      race_data$Percentage <- as.numeric(race_data$Percentage)
+      
+      # Fetch the crime value for the selected crime type
+      crime_value <- filtered_data_medicare[[crime_metric]]
+      
+      # Ensure crime_value is numeric and valid
+      crime_value <- as.numeric(crime_value)
+      
+      # Set the factor levels to control the order of bars
+      race_data$Race <- factor(race_data$Race, levels = c("White", "Black", "Hispanic", "Other"))
+      
+      # Title showing race percentages and crime rate value
+      plot_title <- paste(crime_metric, "Rate for", input$state_search, ":", crime_value)
+      
+      # Create the bar plot
+      ggplot(race_data, aes(x = Race, y = Percentage*100, fill = Race)) +
+        geom_bar(stat = "identity") +
+        labs(title = plot_title,
+             y = "Percentage (%)") +
+        scale_y_continuous(breaks = c(10,20,30,40,50,60,70,80,90,100))+
+        scale_fill_manual(values = c("White" = "lightblue", "Black" = "darkorange", "Hispanic" = "green", "Other" = "purple")) +
+        theme_minimal() +
+        theme(axis.text.x = element_text(size = 15, angle = 45, hjust = 1),
+              axis.text.y = element_text(size = 15),
+              axis.title.y = element_text(size = 20),
+              axis.title.x = element_text(size = 20),
+              plot.title = element_text(hjust = 0.5, size = 18),
+              legend.title = element_text(size = 18),  
+              legend.text = element_text(size = 15))
+    } else {
+      # Return an empty plot if no valid state is selected
+      ggplot() + theme_void()
+    }
+  })
+  
+  
+  # Render the heatmap when no state is selected
+  output$crime_rate_plot <- renderPlot({
+    crime_metric <- switch(input$crime_type,
+                           "Murder Rate" = "Murder",
+                           "Assault Rate" = "Assault",
+                           "Rape Rate" = "Rape")
+    
+    # Filter data based on state abbreviation input
+    filtered_data_medicare <- combined_data
+    if (input$state_search != "") {
+      filtered_data_medicare <- combined_data %>%
+        filter(Level.County == input$state_search)
+    }
+    
+    # Show heatmap only when no state is selected
+    if (input$state_search == "") {
+      generate_heatmap(combined_data, crime_metric, paste("2022", crime_metric, "Rate and Medicare Enrollment by Race Percentages"))
+    } else {
+      # Return an empty plot when a state is selected (no heatmap)
+      ggplot() + theme_void()
+    }
+  })
+  
+  ################################################################################
+  # Population
+  ################################################################################
+  output$crime_rate_plots_population <- renderPlot({
+    if (input$plot_choice == "Violin Plot") {
+      ggplot(crime_data_population, aes(x = population_group, y = crime_rate, fill = population_group)) +
+        geom_violin(trim = FALSE, alpha = 0.7) +
+        scale_fill_brewer(palette = "YlOrRd") +
+        labs(
+          title = "Crime Rate by Population Size in all US Counties",
+          x = "Population Size Group",
+          y = "Crime Rate per 100,000 People",
+          fill = "Population"  # Change legend title here
+        ) +
+        theme_linedraw() +
+        theme(
+          plot.title = element_text(size = 20, face = "bold"),
+          axis.title = element_text(size = 18),
+          axis.text = element_text(size = 16),
+          legend.title = element_text(size = 18),
+          legend.text = element_text(size = 16)
+        )
+    } else {
+      ggplot(crime_data_population, aes(x = population, y = crime_rate)) +
+        geom_point(alpha = 0.3, color = "blue") +           
+        scale_x_log10(labels = scales::comma) +        
+        labs(
+          title = "Population vs. Crime Rate in all US Counties",
+          x = "Population (Log Scale)",
+          y = "Crime Rate per 100,000 People"
+        ) +
+        geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") + # Move this line before theme()
+        theme_linedraw() +
+        theme(
+          plot.title = element_text(size = 20, face = "bold"),
+          axis.title = element_text(size = 18),
+          axis.text = element_text(size = 16)  # Adjust axis text size here
+        )
+    }
+  })
+  ################################################################################
+  # Economics
+  ################################################################################
+  output$scatterPlot <- renderPlot({
+    # Dynamic labels
+    variable_label <- ifelse(input$variable == "medIncome", 
+                             "Median Income ($)", 
+                             "Percentage of Population Under Poverty (%)")
+    crime_label <- ifelse(input$crime_type_economics == "ViolentCrimesPerPop",
+                          "Violent Crimes Per Population",
+                          "Non-Violent Crimes Per Population")
+    
+    # Choose color based on the selected crime type
+    plot_color <- if (input$crime_type_economics == "ViolentCrimesPerPop") {
+      "orange"
+    } else {
+      "blue"
+    }
+    
+    # Generate scatter plot with updated font sizes and dynamic title
+    ggplot(crimedata_economics, aes_string(x = input$variable, y = input$crime_type_economics)) +
+      geom_point(alpha = 0.6, color = plot_color) +
+      labs(
+        x = variable_label,
+        y = crime_label,
+        title = paste("Relationship Between", variable_label, "and", crime_label)
+      ) +
+      theme_minimal() +
+      theme(
+        plot.title = element_text(size = 20, face = "bold"),
+        axis.title.x = element_text(size = 18),
+        axis.title.y = element_text(size = 18),
+        axis.text = element_text(size=16)
+      )
+  })  
 }
