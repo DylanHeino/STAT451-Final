@@ -1,5 +1,5 @@
 ui <- page_navbar(
-  nav_panel("Unemployment and Crime",
+  nav_panel("Crime and Unemployment Analysis",
             sidebarLayout(
               
               sidebarPanel(
@@ -37,18 +37,22 @@ ui <- page_navbar(
               
             )
   ),
-  nav_panel("Crime Map",
-            
+  nav_panel("Crime Rate Map",
             sidebarLayout(
+              
               sidebarPanel(
-                h4("State Details"),
-                verbatimTextOutput(outputId = "State_info")
+                radioButtons(inputId = "region_selector",
+                             label = "Choose a region to visualize crime rates",
+                             choices = c("All", "New England", "Mid Atlantic", "East North Central",
+                                         "West North Central", "South Atlantic", "East South Central",
+                                         "West South Central", "Mountain", "Pacific"),
+                             selected = "All")
               ),
               
               mainPanel(
-                plotOutput(outputId = "mean_violent_crime_map", height = "600px",
-                           hover = hoverOpts(id = "map_hover", delayType = "throttle"))
+                plotOutput(outputId = "crime_rate_map_us", height = "600px")
               )
+              
             )
   ),
   
@@ -126,9 +130,11 @@ ui <- page_navbar(
               )
             )
   ),
-  nav_panel("Education Stuff"),
+  nav_panel(
+    "Education and Crime Rate",
+  ),
   
   
-  title = "Visualization of Crime Data in the U.S.",
+  title = "Stuff",
   id = "page"
 )

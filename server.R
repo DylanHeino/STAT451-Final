@@ -24,49 +24,52 @@ server <- function(input, output) {
   
   ### Plotting the Bar plot of mean count of different type of violent crimes ###
   output$detail_violent_crime_plot <- renderPlot({
+    library(stringr) # Ensure stringr is loaded for string manipulation
     
     state_long <- state_means %>%
       select(state, Murder, rape, Robbery, Aggravated.assault) %>%
-      pivot_longer(cols = c(Murder, rape, Robbery, Aggravated.assault),
-                   names_to = "Crime_Type",
-                   values_to = "Count")
+      pivot_longer(
+        cols = c(Murder, rape, Robbery, Aggravated.assault),
+        names_to = "Crime_Type",
+        values_to = "Count"
+      ) %>%
+      mutate(Crime_Type = str_replace_all(Crime_Type, "\\.", " ") %>% # Replace "." with " "
+               str_to_title()) # Capitalize each word
     
     if (input$state != "All") {
       state_long_new <- state_long %>% filter(state == input$state)
       ggplot(state_long_new, aes(x = Crime_Type, y = Count, fill = Crime_Type)) +
         geom_bar(stat = "identity") +
-        labs(title = ifelse(input$state != "All",
-                            paste("Violent Crime Counts in", input$state),
-                            "Violent Crime Counts Across All States"),
-             x = "Crime Type",
-             y = "Count") +
+        labs(
+          title = paste("Violent Crime Counts in", input$state),
+          x = "Crime Type",
+          y = "Count"
+        ) +
         theme(
-          plot.title = element_text(size = 30, face = "bold"),
-          axis.title.x = element_text(size = 20),
-          axis.title.y = element_text(size = 20),
-          axis.text.x = element_text(size = 18),
-          axis.text.y = element_text(size = 18),
+          plot.title = element_text(size = 20, face = "bold"),
+          axis.title.x = element_text(size = 18),
+          axis.title.y = element_text(size = 18),
+          axis.text.x = element_text(size = 14),
+          axis.text.y = element_text(size = 14),
           legend.position = "none"
         )
     } else {
-      state_data <- state_means
       ggplot(state_long, aes(x = Crime_Type, y = Count, fill = Crime_Type)) +
         geom_bar(stat = "identity") +
-        labs(title = ifelse(input$state != "All",
-                            paste("Violent Crime Counts in", input$state),
-                            "Violent Crime Counts Across All States"),
-             x = "Crime Type",
-             y = "Count") +
+        labs(
+          title = "Violent Crime Counts Across All States",
+          x = "Crime Type",
+          y = "Count"
+        ) +
         theme(
-          plot.title = element_text(size = 30, face = "bold"),
-          axis.title.x = element_text(size = 20),
-          axis.title.y = element_text(size = 20),
-          axis.text.x = element_text(size = 18),
-          axis.text.y = element_text(size = 18),
+          plot.title = element_text(size = 20, face = "bold"),
+          axis.title.x = element_text(size = 18),
+          axis.title.y = element_text(size = 18),
+          axis.text.x = element_text(size = 14),
+          axis.text.y = element_text(size = 14),
           legend.position = "none"
         )
     }
-    
   })
   
   output$mean_violent_crime_map <- renderPlot({
@@ -86,8 +89,8 @@ server <- function(input, output) {
         plot.title = element_text(size = 20, face = "bold"),
         legend.position = "right", 
         legend.key.size = unit(1.75, "cm"), 
-        legend.text = element_text(size = 11, face = 'bold'), 
-        legend.title = element_text(size = 12, face = 'bold')
+        legend.text = element_text(size = 12, face = 'bold'), 
+        legend.title = element_text(size = 18, face = 'bold')
       )
   })
   ### Plotting the unemployment rate vs. mean violent crime count scatterplot ###
@@ -98,16 +101,14 @@ server <- function(input, output) {
       geom_smooth(method = "lm", se = FALSE, color = "black") +
       scale_color_viridis_d(option = "D") +
       labs(title = "Average number of violent crime vs. unemployment rate across states",
-           x = "Unemployment rate",
+           x = "Unemployment rate (%)",
            y = "Average number of violent crimes") +
       theme(
-        plot.title <- element_text(size = 30, face = "bold"),
-        axis.title.x <- element_text(size = 24),
-        axis.title.y <- element_text(size = 24),
-        axis.text.x <- element_text(size = 20),
-        axis.text.y <- element_text(size = 20),
-        legend.text <- element_text(size = 18),
-        legend.title <- element_text(size = 18)
+        plot.title = element_text(size = 20, face = "bold"),
+        axis.title = element_text(size = 18),
+        axis.text = element_text(size = 15),
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 18)
       )
     
   })
@@ -137,8 +138,7 @@ server <- function(input, output) {
       "Hover over a point to see details."
     }
   })
-  
-  output$state_info <- renderPrint({
+output$state_info <- renderPrint({
     
     state_centers <- usmap::us_map("states") %>%
       group_by(full) %>%
@@ -176,6 +176,69 @@ server <- function(input, output) {
     } else {
       "Hover over the map to begin exploring"
     }
+  })
+  
+  plot_region <- function(region_input) {
+    plot_usmap("counties",
+               include = region_input,
+               data = crime_pop_data,
+               values = "crime_rate_per_100000",
+               color = "black") +
+      scale_fill_continuous(low = "gold",
+                            high = "purple",
+                            name = "Crime rate per 100,000 people") +
+      labs(
+        title = "Crime rate per 100,000 people for Mountain Region"
+      ) +
+      theme(panel.background = element_rect(color = "lightgrey", fill = "white"),
+            legend.position = "right",
+            plot.title = element_text(size = 22, face = "bold"),  # Title font size
+            plot.subtitle = element_text(size = 18),             # Subtitle font size
+            legend.text = element_text(size = 14),               # Legend text font size
+            legend.title = element_text(size = 16),              # Legend title font size
+            axis.text = element_text(size = 12),                 # Axis text font size
+            axis.title = element_text(size = 14) )
+  }
+  
+  output$crime_rate_map_us <- renderPlot({
+    
+    if (input$region_selector == "All") {
+      plot_usmap(regions = "counties",
+                 data = crime_pop_data,
+                 values = "crime_rate_per_100000",
+                 size = 2,
+                 color = "black") +
+        scale_fill_continuous(low = "gold",
+                              high = "purple",
+                              name = "Crime rate per 100,000 people",
+                              label = scales::comma) +
+        labs(title = "Crime rate of counties in the U.S.",
+             subtitle = "Crime rate per 100,000 people") +
+        theme(panel.background = element_rect(color = "black", fill = "white"),
+              legend.position = "right",
+              plot.title = element_text(size = 22, face = "bold"),  # Title font size
+              plot.subtitle = element_text(size = 18),             # Subtitle font size
+              legend.text = element_text(size = 14),               # Legend text font size
+              legend.title = element_text(size = 16),              # Legend title font size
+              axis.text = element_text(size = 12),                 # Axis text font size
+              axis.title = element_text(size = 14) )
+    } else {
+      regions_map <- list(
+        "New England" = .new_england,
+        "Mid Atlantic" = .mid_atlantic,
+        "East North Central" = .east_north_central,
+        "West North Central" = .west_north_central,
+        "South Atlantic" = .south_atlantic,
+        "East South Central" = .east_south_central,
+        "West South Central" = .west_south_central,
+        "Mountain" = .mountain,
+        "Pacific" = .pacific)
+      
+      selected_region <- regions_map[[input$region_selector]]
+      plot_region(selected_region)
+      
+    }
+    
   })
   ################################################################################
   # Render Medicare Visualization Based on Selection
@@ -358,9 +421,12 @@ server <- function(input, output) {
       theme_minimal() +
       theme(
         plot.title = element_text(size = 20, face = "bold"),
-        axis.title.x = element_text(size = 18),
-        axis.title.y = element_text(size = 18),
-        axis.text = element_text(size=16)
+        axis.title = element_text(size = 18,),
+        axis.text = element_text(size=14)
       )
   })  
 }
+################################################################################
+  # Education
+################################################################################
+  

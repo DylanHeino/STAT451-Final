@@ -5,15 +5,19 @@ library(dplyr)
 library(tidyr)
 library(cowplot)
 library(usmap)
-
+library(stringr)
+library(tidyverse)
+library(maps)
 ################################################################################
 # Datasets
 ################################################################################
 unemployment_crime_data <- read.csv("C:\\Users\\Dylan H\\Documents\\STAT 451\\Final\\crimebystatecombinedwithunemployment.csv")
 crime_data = read.csv("C:\\Users\\Dylan H\\Documents\\STAT 451\\Final\\US_violent_crime.csv")
 crime_data_population <- read.csv("C:\\Users\\Dylan H\\Documents\\STAT 451\\Final\\crime_data_w_population_and_crime_rate.csv")
+crime_pop_data <- read.csv("C:\\Users\\Dylan H\\Documents\\STAT 451\\Final\\crime_data_w_population_and_crime_rate.csv")
 data = read.csv("C:\\Users\\Dylan H\\Documents\\STAT 451\\Final\\2014-2022 Medicare FFS Geographic Variation Public Use File.csv")
 crimedata_economics <- read.csv("C:\\Users\\Dylan H\\Documents\\STAT 451\\Final\\crimedata.csv")
+crime_data_education <- read.csv("C:\\Users\\Dylan H\\Documents\\STAT 451\\Final\\US Violent Crime Dataset (3).csv")
 
 
 
@@ -26,8 +30,30 @@ state_means <-
   summarize(across(where(is.numeric), mean, na.rm = TRUE)) %>%
   mutate(overall_mean = rowMeans(select(., where(is.numeric)), na.rm = TRUE))
 
+### Process the crime rate with population data ###
+us_counties <- maps::county.fips
+us_counties <- us_counties %>%
+  separate(polyname, into = c("state", "county"), sep = ",") 
+
+crime_pop_data <- crime_pop_data %>%
+  separate(county_name, into = c("county", "state"), sep = ",\\s*", remove = FALSE) %>%
+  mutate(
+    county = str_to_lower(county) %>%
+      str_replace_all("\\.", "") %>% 
+      str_replace("\\scounty$", ""),
+    state = str_to_lower(state)  # State abbreviation in lowercase for consistency
+  )
+
+crime_pop_data <- crime_pop_data %>%
+  mutate(county = str_replace(county, "\\scity$", " city"))
+
+crime_pop_data <- crime_pop_data %>%
+  select(-county_name)
+
+crime_pop_data <- crime_pop_data %>%
+  left_join(us_counties, by = "county", relationship = "many-to-many")
 ################################################################################
-# Population data manipulation
+# Population
 ################################################################################
 crime_data_population <- crime_data_population %>%
   rename(population = population, crime_rate = crime_rate_per_100000)
