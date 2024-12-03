@@ -101,7 +101,7 @@ ui <- page_navbar(
             sidebarLayout(
               sidebarPanel(
                 selectInput(
-                  inputId = "crime_type_education",
+                  inputId = "crime_type",
                   label = "Select Crime Type:",
                   choices = c("Murder", "Assault", "Rape"),
                   selected = "Murder"
@@ -109,10 +109,10 @@ ui <- page_navbar(
               ),
               mainPanel(
                 plotlyOutput(outputId = "crime_plot_education", height = "600px"),
-                verbatimTextOutput(outputId = "correlation")  # Output for correlation
+                verbatimTextOutput(outputId = "correlation")  # Added output for correlation
               )
             )
-  ),
+            ),
   # Medicare Implementation
   nav_panel("Medicare Enrollement and Crime",
             sidebarLayout(

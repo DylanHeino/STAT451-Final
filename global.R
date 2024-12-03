@@ -18,9 +18,17 @@ crime_data_population <- read.csv("C:\\Users\\Dylan H\\Documents\\STAT 451\\Fina
 crime_pop_data <- read.csv("C:\\Users\\Dylan H\\Documents\\STAT 451\\Final\\crime_data_w_population_and_crime_rate.csv")
 data = read.csv("C:\\Users\\Dylan H\\Documents\\STAT 451\\Final\\2014-2022 Medicare FFS Geographic Variation Public Use File.csv")
 crimedata_economics <- read.csv("C:\\Users\\Dylan H\\Documents\\STAT 451\\Final\\crimedata.csv")
-crime_data_education <- read.csv("C:\\Users\\Dylan H\\Documents\\STAT 451\\Final\\US Violent Crime Dataset (3).csv")
+crime_data_education <- read.csv("C:\\Users\\Dylan H\\Documents\\STAT 451\\Final\\US_violent_crime.csv")
+education_data <- read.csv("C:\\Users\\Dylan H\\Documents\\STAT 451\\Final\\MostEducatedStates2024.csv")
 
+################################################################################
+# Education
+################################################################################
+# Renamed the unnamed column in the crime data to "state"
+names(crime_data_education)[1] <- "state"
 
+# Merge the two datasets
+crime_data_education <- merge(filtered_education_data, crime_data_education, by = "state")
 
 ################################################################################
 # Unemployment data manipulation
