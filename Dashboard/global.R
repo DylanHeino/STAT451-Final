@@ -20,16 +20,30 @@ data = read.csv("C:\\Users\\Dylan H\\Documents\\STAT 451\\Final\\2014-2022 Medic
 crimedata_economics <- read.csv("C:\\Users\\Dylan H\\Documents\\STAT 451\\Final\\crimedata.csv")
 crime_data_education <- read.csv("C:\\Users\\Dylan H\\Documents\\STAT 451\\Final\\US_violent_crime.csv")
 education_data <- read.csv("C:\\Users\\Dylan H\\Documents\\STAT 451\\Final\\MostEducatedStates2024.csv")
-
+alcohol_data <- read.csv("C:\\Users\\Dylan H\\Documents\\STAT 451\\Final\\Alcohol Consumption by State 2024.csv")
+homelessness_data <- read.csv("C:\\Users\\Dylan H\\Documents\\STAT 451\\Final\\Homeless Population by State 2024.csv")
+drug_use_data <- read.csv("C:\\Users\\Dylan H\\Documents\\STAT 451\\Final\\Drug Use by State 2024.csv")
 ################################################################################
-# Education
+# Education Drug
 ################################################################################
 # Renamed the unnamed column in the crime data to "state"
 names(crime_data_education)[1] <- "state"
 filtered_education_data <- education_data[education_data$state != "District of Columbia", ]
 # Merge the two datasets
-crime_data_education <- merge(filtered_education_data, crime_data_education, by = "state")
 
+filtered_alcohol_data <- alcohol_data[alcohol_data$state != "District of Columbia", ]
+filtered_homelessness_data <- homelessness_data[homelessness_data$state != "District of Columbia", ]
+filtered_drug_use_data <- drug_use_data[drug_use_data$state != "District of Columbia", ]
+filtered_education_data <- education_data[education_data$state != "District of Columbia", ]
+# Rename state column in crime data
+names(crime_data_education)[1] <- "state"
+
+# Merge all datasets
+merged_data_education <- crime_data_education %>%
+  merge(filtered_alcohol_data, by = "state") %>%
+  merge(filtered_homelessness_data, by = "state") %>%
+  merge(filtered_drug_use_data, by = "state") %>%
+  merge(filtered_education_data, by = "state")
 ################################################################################
 # Unemployment data manipulation
 ################################################################################

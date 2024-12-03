@@ -310,7 +310,7 @@ output$state_info <- renderPrint({
       race_data$Race <- factor(race_data$Race, levels = c("White", "Black", "Hispanic", "Other"))
       
       # Title showing race percentages and crime rate value
-      plot_title <- paste("Race Percentages for", input$state_search)
+      plot_title <- paste("Race Percentages Of Medicare Enrollment for", input$state_search)
       
       # Create the bar plot
       ggplot(race_data, aes(x = Race, y = Percentage*100, fill = Race)) +
@@ -433,12 +433,57 @@ output$state_info <- renderPrint({
   })  
 
 ################################################################################
-  # Education
+  # Education and Drugs
 ################################################################################
   # Calculate correlation coefficient
+  selected_factor <- reactive({
+    if (input$analysis_type == "education") {
+      list(
+        column = "MostEducatedStatesTotalBSDegreeOrHigher",
+        label = "Population with Bachelor's Degree or Higher (%)",
+        title_prefix = "Education Level",
+        subtitle = "Higher education measured as percentage of population with bachelor's degree or higher",
+        color = "darkblue",
+        smooth_color = "red",
+        smooth_fill = "pink"
+      )
+    } else if(input$factor_type == "alcohol") {
+      list(
+        column = "AlcoholConsumptionGallonsOfEthanolPerCapita",
+        label = "Alcohol Consumption Gallons Of Ethanol Per Capita",
+        title_prefix = "Alcohol Level",
+        subtitle = "Alcohol level measured as Gallons Of Ethanol consumed Per Capita",
+        color = "darkblue",
+        smooth_color = "gold",
+        smooth_fill = "yellow"
+      )
+    } else if(input$factor_type == "homelessness") {
+      list(
+        column = "HomelessPopulationPer10kResidents",
+        label = "Homeless Population Per 10k Residents",
+        title_prefix = "Homelessness Level",
+        subtitle = "Homelessness measured as homeless population per 10,000 residents",
+        color = "darkblue",
+        smooth_color = "darkblue",
+        smooth_fill = "lightblue"
+      )
+    } else {
+      list(
+        column = "DrugUse_18PlusIllicitDrugUsePastMonth_202122",
+        label = "Illicit Drug Use Percentage",
+        title_prefix = "Illicit Drug Usage",
+        subtitle = "Illicit Drug Use Percentage is calculated by comparing the number of individuals exhibiting drug use to overall population totals",
+        color = "darkblue",
+        smooth_color = "darkgreen",
+        smooth_fill = "lightgreen"
+      )
+    }
+  })
+  
+  # Calculate correlation coefficient
   correlation_text <- reactive({
-    correlation <- cor.test(crime_data_education$MostEducatedStatesTotalBSDegreeOrHigher, 
-                            crime_data_education[[input$crime_type_education]])
+    correlation <- cor.test(merged_data_education[[selected_factor()$column]], 
+                            merged_data_education[[input$crime_type_education]])
     paste0(
       "Strength of Relationship:\n",
       "Pearson's r: ", round(correlation$estimate, 3), "\n"
@@ -450,20 +495,24 @@ output$state_info <- renderPrint({
   })
   
   output$crime_plot_education <- renderPlotly({
+    factor_info <- selected_factor()
     
-    cor_value <- round(cor(crime_data_education$MostEducatedStatesTotalBSDegreeOrHigher, crime_data_education[[input$crime_type_education]]), 3)
+    cor_value <- round(cor(merged_data_education[[factor_info$column]], 
+                           merged_data_education[[input$crime_type_education]]), 3)
     
-    
-    p <- ggplot(crime_data_education, aes_string(x = "MostEducatedStatesTotalBSDegreeOrHigher", y = input$crime_type_education)) +
-      geom_point(aes(text = state), color = "darkblue", alpha = 0.6, size = 3) +
-      geom_smooth(method = "lm", color = "red", fill = "pink", alpha = 0.2) +
+    p <- ggplot(merged_data_education, aes_string(x = factor_info$column, 
+                                                  y = input$crime_type_education)) +
+      geom_point(aes(text = state), color = factor_info$color, alpha = 0.6, size = 3) +
+      geom_smooth(method = "lm", color = factor_info$smooth_color, 
+                  fill = factor_info$smooth_fill, alpha = 0.2) +
       labs(
-        title = paste("Relationship Between Education Level and", input$crime_type_education, "Rate by State"),
+        title = paste("Relationship Between", factor_info$title_prefix, 
+                      "and", input$crime_type_education, "Rate by State"),
         subtitle = paste0(
-          "Higher education measured as percentage of population with bachelor's degree or higher\n",
+          factor_info$subtitle, "\n",
           "Correlation coefficient (r) = ", cor_value
         ),
-        x = "Population with Bachelor's Degree or Higher (%)",
+        x = factor_info$label,
         y = paste(input$crime_type_education, "Rate (per 100,000 population)")
       ) +
       theme_minimal() +
@@ -474,12 +523,11 @@ output$state_info <- renderPrint({
         axis.text = element_text(size = 9)
       )
     
-    
     ggplotly(p, tooltip = "text") %>%
       layout(
         hoverlabel = list(bgcolor = "white"),
         title = list(font = list(size = 14)),
-        margin = list(b = 100)  
+        margin = list(b = 100)
       )
   })
 }

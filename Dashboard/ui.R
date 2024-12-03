@@ -97,9 +97,27 @@ ui <- page_navbar(
   ),
   
 
-  nav_panel("Education and Crime Rate",
+  nav_panel("Education, Drugs, and Crime Rate",
             sidebarLayout(
               sidebarPanel(
+                selectInput(
+                  inputId = "analysis_type",
+                  label = "Select Analysis Type:",
+                  choices = c("Social Factors" = "social", 
+                              "Education Level" = "education"),
+                  selected = "social"
+                ),
+                conditionalPanel(
+                  condition = "input.analysis_type == 'social'",
+                  selectInput(
+                    inputId = "factor_type",
+                    label = "Select Social Factor:",
+                    choices = c("Alcohol Consumption" = "alcohol", 
+                                "Homelessness" = "homelessness",
+                                "Drug Use" = "drug"),
+                    selected = "alcohol"
+                  )
+                ),
                 selectInput(
                   inputId = "crime_type_education",
                   label = "Select Crime Type:",
@@ -109,10 +127,10 @@ ui <- page_navbar(
               ),
               mainPanel(
                 plotlyOutput(outputId = "crime_plot_education", height = "600px"),
-                verbatimTextOutput(outputId = "correlation")  # Added output for correlation
+                verbatimTextOutput(outputId = "correlation")
               )
             )
-            ),
+  ),
   # Medicare Implementation
   nav_panel("Medicare Enrollement and Crime",
             sidebarLayout(
@@ -135,7 +153,7 @@ ui <- page_navbar(
                 # Conditionally show the bar plot for race percentages only when a state is entered
                 conditionalPanel(
                   condition = "input.state_search != ''",
-                  plotOutput("race_percentage_bar_plot", height = "800px")
+                  plotOutput("race_percentage_bar_plot", height = "750px")
                 ),
                 
                 # Conditionally show the heatmap only when no state is selected
