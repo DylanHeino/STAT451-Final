@@ -432,7 +432,7 @@ output$state_info <- renderPrint({
   # Calculate correlation coefficient
   correlation_text <- reactive({
     correlation <- cor.test(crime_data_education$MostEducatedStatesTotalBSDegreeOrHigher, 
-                            crime_data_education[[input$crime_type]])
+                            crime_data_education[[input$crime_type_education]])
     paste0(
       "Strength of Relationship:\n",
       "Pearson's r: ", round(correlation$estimate, 3), "\n"
@@ -445,20 +445,20 @@ output$state_info <- renderPrint({
   
   output$crime_plot_education <- renderPlotly({
     
-    cor_value <- round(cor(crime_data_education$MostEducatedStatesTotalBSDegreeOrHigher, crime_data_education[[input$crime_type]]), 3)
+    cor_value <- round(cor(crime_data_education$MostEducatedStatesTotalBSDegreeOrHigher, crime_data_education[[input$crime_type_education]]), 3)
     
     
-    p <- ggplot(crime_data_education, aes_string(x = "MostEducatedStatesTotalBSDegreeOrHigher", y = input$crime_type)) +
+    p <- ggplot(crime_data_education, aes_string(x = "MostEducatedStatesTotalBSDegreeOrHigher", y = input$crime_type_education)) +
       geom_point(aes(text = state), color = "darkblue", alpha = 0.6, size = 3) +
       geom_smooth(method = "lm", color = "red", fill = "pink", alpha = 0.2) +
       labs(
-        title = paste("Relationship Between Education Level and", input$crime_type, "Rate by State"),
+        title = paste("Relationship Between Education Level and", input$crime_type_education, "Rate by State"),
         subtitle = paste0(
           "Higher education measured as percentage of population with bachelor's degree or higher\n",
           "Correlation coefficient (r) = ", cor_value
         ),
         x = "Population with Bachelor's Degree or Higher (%)",
-        y = paste(input$crime_type, "Rate (per 100,000 population)")
+        y = paste(input$crime_type_education, "Rate (per 100,000 population)")
       ) +
       theme_minimal() +
       theme(

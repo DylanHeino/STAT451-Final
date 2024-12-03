@@ -101,7 +101,7 @@ ui <- page_navbar(
             sidebarLayout(
               sidebarPanel(
                 selectInput(
-                  inputId = "crime_type",
+                  inputId = "crime_type_education",
                   label = "Select Crime Type:",
                   choices = c("Murder", "Assault", "Rape"),
                   selected = "Murder"
