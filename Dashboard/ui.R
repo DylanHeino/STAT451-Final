@@ -129,8 +129,7 @@ ui <- page_navbar(
                 # Conditionally show the crime rate value text only when a state is entered
                 conditionalPanel(
                   condition = "input.state_search != ''",
-                  textOutput("crime_rate_value"),
-                  style = "text-align: center; font-size: 24px; font-weight: bold;"
+                  verbatimTextOutput("crime_rate_value")
                 ),
                 
                 # Conditionally show the bar plot for race percentages only when a state is entered

@@ -255,19 +255,25 @@ output$state_info <- renderPrint({
       filtered_data_medicare <- combined_data %>%
         filter(Level.County == input$state_search)
     }
-    
+    filtered_label <- average_labels %>%
+      filter(Metric == crime_metric)
     if (input$state_search != "" && nrow(filtered_data_medicare) > 0) {
       # Fetch the crime value for the selected state and metric
       crime_value <- filtered_data_medicare[[crime_metric]]
       
       # Ensure crime_value is numeric and valid
       crime_value <- as.numeric(crime_value)
-      
+      crime_label <- filtered_label$Average
       # Generate the text output
-      trimws(paste("Race Percentages of Medicare Enrollment for", input$state_search))
-    } else {
-      # Return an empty string if no valid state or data is found
-      ""
+      trimws(paste(
+        crime_metric, " Rate for ", input$state_search, ": ", crime_value,
+        "\n", crime_metric, " Rate Average : ", crime_label,
+        "\n","White Average : ",white_average$Average,"%",
+        "\n","Black Average : ",black_average$Average,"%",
+        "\n","Hispanic Average : ",hisp_average$Average,"%",
+        "\n","Other Average : ",other_average$Average,"%",
+        sep = ""
+      ))
     }
   })
   
@@ -304,7 +310,7 @@ output$state_info <- renderPrint({
       race_data$Race <- factor(race_data$Race, levels = c("White", "Black", "Hispanic", "Other"))
       
       # Title showing race percentages and crime rate value
-      plot_title <- paste(crime_metric, "Rate for", input$state_search, ":", crime_value)
+      plot_title <- paste("Race Percentages for", input$state_search)
       
       # Create the bar plot
       ggplot(race_data, aes(x = Race, y = Percentage*100, fill = Race)) +
@@ -318,7 +324,7 @@ output$state_info <- renderPrint({
               axis.text.y = element_text(size = 15),
               axis.title.y = element_text(size = 20),
               axis.title.x = element_text(size = 20),
-              plot.title = element_text(hjust = 0.5, size = 18),
+              plot.title = element_text(hjust = 0.5, size = 20, face = "bold"),
               legend.title = element_text(size = 18),  
               legend.text = element_text(size = 15))
     } else {

@@ -26,7 +26,7 @@ education_data <- read.csv("C:\\Users\\Dylan H\\Documents\\STAT 451\\Final\\Most
 ################################################################################
 # Renamed the unnamed column in the crime data to "state"
 names(crime_data_education)[1] <- "state"
-
+filtered_education_data <- education_data[education_data$state != "District of Columbia", ]
 # Merge the two datasets
 crime_data_education <- merge(filtered_education_data, crime_data_education, by = "state")
 
@@ -98,6 +98,35 @@ combined_data <- merge(data_filtered, crime_data, by.x = "Level.County", by.y = 
 combined_data <- combined_data[, !names(combined_data) %in% c("YEAR", "Level","Age","Total","Male.PCT", "Female.PCT", "UrbanPop")]
 combined_data <- combined_data %>%
   rename(White = White.PCT, Black = Black.PCT, Hispanic = Hisp.PCT, Other = Other.PCT)
+
+averages <- combined_data %>%
+  summarise(
+    Murder = mean(as.numeric(Murder), na.rm = TRUE),
+    Assault = mean(as.numeric(Assault), na.rm = TRUE),
+    Rape = mean(as.numeric(Rape), na.rm = TRUE),
+    White = mean(as.numeric(White), na.rm = TRUE),
+    Black = mean(as.numeric(Black), na.rm = TRUE),
+    Hispanic = mean(as.numeric(Hispanic), na.rm = TRUE),
+    Other = mean(as.numeric(Other), na.rm = TRUE)
+  )
+
+average_labels <- averages %>%
+  pivot_longer(cols = everything(), names_to = "Metric", values_to = "Average") %>%
+  mutate(Average = round(Average, 3)) %>%
+  mutate(Label = paste0(Metric, "\nAvg: ", Average))
+
+white_average <- average_labels %>%
+  filter(Metric == "White")
+black_average <- average_labels %>%
+  filter(Metric == "Black")
+hisp_average <- average_labels %>%
+  filter(Metric == "Hispanic")
+other_average <- average_labels %>%
+  filter(Metric == "Other")
+white_average$Average= white_average$Average*100
+black_average$Average= black_average$Average*100
+hisp_average$Average= hisp_average$Average*100
+other_average$Average= other_average$Average*100
 
 ################################################################################
 # Medicare plot generation
