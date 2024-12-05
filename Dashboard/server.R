@@ -210,10 +210,10 @@ output$state_info <- renderPrint({
                  color = "black") +
         scale_fill_continuous(low = "gold",
                               high = "purple",
-                              name = "Crime rate per 100,000 people",
+                              name = "Number of crimes per 100,000 people",
                               label = scales::comma) +
-        labs(title = "Crime rate of counties in the U.S.",
-             subtitle = "Crime rate per 100,000 people") +
+        labs(title = "Number of crimes within counties in the U.S.",
+             subtitle = "Per 100,000 people") +
         theme(panel.background = element_rect(color = "black", fill = "white"),
               legend.position = "right",
               plot.title = element_text(size = 22, face = "bold"),  # Title font size
