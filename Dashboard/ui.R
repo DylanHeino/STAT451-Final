@@ -1,10 +1,10 @@
 ui <- page_navbar(
-  nav_panel("Crime Rate Map",
+  nav_panel("Crime Number Distribution Map",
             sidebarLayout(
               
               sidebarPanel(
                 radioButtons(inputId = "region_selector",
-                             label = "Choose a region to visualize crime rates",
+                             label = "Choose a region to visualize distribution of number of crimes",
                              choices = c("All", "New England", "Mid Atlantic", "East North Central",
                                          "West North Central", "South Atlantic", "East South Central",
                                          "West South Central", "Mountain", "Pacific"),
